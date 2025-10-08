@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId = "antonio.femxa.appfinal"
         minSdk = 21
-        targetSdk = 34
-        versionCode = 3
-        versionName = "2.1 REVIVAL"
+        targetSdk = 35
+        versionCode = 4
+        versionName = "2.2 Ads"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
