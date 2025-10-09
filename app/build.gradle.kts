@@ -1,3 +1,14 @@
+import java.util.Properties
+
+// Leer la clave desde local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+val apiPubli: String = localProperties.getProperty("API_PUBLI") ?: ""
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -15,6 +26,7 @@ android {
         versionName = "2.2 Ads"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        resValue("string", "api_publi", apiPubli)
     }
 
     buildTypes {
