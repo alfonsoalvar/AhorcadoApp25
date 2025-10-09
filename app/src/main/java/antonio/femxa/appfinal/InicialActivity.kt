@@ -39,8 +39,8 @@ class InicialActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inicial)
 
-        //iniciarAnuncios()
-        iniciarAnunciosRecompensado()
+        iniciarAnuncios()
+        //iniciarAnunciosRecompensado()
 
         mediaPlayer = MediaPlayer.create(this, R.raw.inicio1)
         mediaPlayer!!.isLooping = true

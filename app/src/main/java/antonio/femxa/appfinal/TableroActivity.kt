@@ -4,10 +4,12 @@ package antonio.femxa.appfinal
 import android.content.Intent
 import android.graphics.Color
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowMetrics
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -15,6 +17,11 @@ import android.widget.ImageView
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import java.util.Locale
 
 
@@ -36,12 +43,33 @@ class TableroActivity : AppCompatActivity() {
     private var sonidoOnOff: Boolean = false
     private var mediaPlayer: MediaPlayer? = null
 
+    val idUnitAdBanner = "ca-app-pub-9910445535228761/9528197815"
+
+    lateinit var adView: View
+
+    private val adSize: AdSize
+        get() {
+            val displayMetrics = resources.displayMetrics
+            val adWidthPixels =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val windowMetrics: WindowMetrics = this.windowManager.currentWindowMetrics
+                    windowMetrics.bounds.width()
+                } else {
+                    displayMetrics.widthPixels
+                }
+            val density = displayMetrics.density
+            val adWidth = (adWidthPixels / density).toInt()
+            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablero)
         val v = findViewById<View>(R.id.btnImagen)
         val ib = v as ImageButton
+
+        crearAnuncio()
 
         contador = 0
         contador_aciertos = 0
@@ -423,5 +451,61 @@ class TableroActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         mediaPlayer!!.stop()
+    }
+
+    fun crearAnuncio ()
+    {
+
+        //obtengo un anuncio
+        val adView = AdView(this)
+        adView.adUnitId = idUnitAdBanner
+        adView.setAdSize(adSize)
+        this.adView = adView
+
+        //refresco el XML
+        val adviewxml = findViewById<AdView> (R.id.anuncio)
+        adviewxml.removeAllViews()
+        adviewxml.addView(this.adView)
+
+        //cargo el anuncio
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+
+
+
+        adView.adListener = object: AdListener() {
+            override fun onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+                Log.d("MIAPP","onAdClicked()" )
+            }
+
+            override fun onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+                Log.d("MIAPP","onAdClosed()" )
+            }
+
+            override fun onAdFailedToLoad(adError : LoadAdError) {
+                // Code to be executed when an ad request fails.
+                Log.d("MIAPP","onAdFailedToLoad()" )
+            }
+
+            override fun onAdImpression() {
+                // Code to be executed when an impression is recorded
+                // for an ad.
+                Log.d("MIAPP","onAdImpression()" )
+            }
+
+            override fun onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+                Log.d("MIAPP","onAdLoaded()" )
+            }
+
+            override fun onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+                Log.d("MIAPP","onAdOpened()" )
+            }
+        }
     }
 }
