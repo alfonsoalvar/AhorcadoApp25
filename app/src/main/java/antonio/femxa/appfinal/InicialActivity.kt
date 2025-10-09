@@ -18,6 +18,8 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.initialization.InitializationStatus
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,13 +30,17 @@ class InicialActivity : AppCompatActivity() {
      var musicaOnOff: Boolean = false
 
      val IDBLOUEANUNCIO_INTER = "ca-app-pub-9910445535228761/8258514024"
+     val IDBLOUEANUNCIO_INTER_RECOMPENSADO = "ca-app-pub-9910445535228761/2022540677"
+
      var interstitialAd : InterstitialAd? = null
+     var interstitialAdRecompensado : RewardedInterstitialAd? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inicial)
 
-        iniciarAnuncios()
+        //iniciarAnuncios()
+        iniciarAnunciosRecompensado()
 
         mediaPlayer = MediaPlayer.create(this, R.raw.inicio1)
         mediaPlayer!!.isLooping = true
@@ -153,6 +159,72 @@ class InicialActivity : AppCompatActivity() {
                         override fun onAdFailedToLoad(adError: LoadAdError) {
                             Log.e ("MIAPP", adError.message)
                             interstitialAd = null
+                        }
+                    },
+                )
+
+            }
+        }
+    }
+
+    fun iniciarAnunciosRecompensado ()
+    {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Initialize the Google Mobile Ads SDK on a background thread.
+            MobileAds.initialize(this@InicialActivity) {
+                    initializationStatus : InitializationStatus ->
+
+                Log.d("MIAPP", "Inicialización de anuncios completada")
+                RewardedInterstitialAd.load(
+                    this@InicialActivity,
+                    IDBLOUEANUNCIO_INTER_RECOMPENSADO,
+                    AdRequest.Builder().build(),
+                    object : RewardedInterstitialAdLoadCallback() {
+                        override fun onAdLoaded(ad: RewardedInterstitialAd) {
+                            Log.d("MIAPP", "Anuncio Cargado.")
+                            interstitialAdRecompensado = ad
+                            interstitialAdRecompensado?.show(this@InicialActivity) { rewardItem ->
+                                Log.d("MIAPP", "User earned the reward. ${rewardItem.amount} ${rewardItem.type}")
+
+                            }
+                            interstitialAdRecompensado?.fullScreenContentCallback =
+                                object : FullScreenContentCallback() {
+                                    override fun onAdDismissedFullScreenContent() {
+                                        // Called when fullscreen content is dismissed.
+                                        Log.d("MIAPP", "Ad was dismissed.")
+                                        // Don't forget to set the ad reference to null so you
+                                        // don't show the ad a second time.
+                                        interstitialAdRecompensado = null
+                                    }
+
+                                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                        // Called when fullscreen content failed to show.
+                                        Log.d("MIAPP", "Ad failed to show.")
+                                        // Don't forget to set the ad reference to null so you
+                                        // don't show the ad a second time.
+                                        interstitialAdRecompensado = null
+                                    }
+
+                                    override fun onAdShowedFullScreenContent() {
+                                        // Called when fullscreen content is shown.
+                                        Log.d("MIAPP", "Ad showed fullscreen content.")
+                                    }
+
+                                    override fun onAdImpression() {
+                                        // Called when an impression is recorded for an ad.
+                                        Log.d("MIAPP", "Ad recorded an impression.")
+                                    }
+
+                                    override fun onAdClicked() {
+                                        // Called when ad is clicked.
+                                        Log.d("MIAPP", "Ad was clicked.")
+                                    }
+                                }
+                        }
+
+                        override fun onAdFailedToLoad(adError: LoadAdError) {
+                            Log.e ("MIAPP", adError.message)
+                            interstitialAdRecompensado = null
                         }
                     },
                 )
