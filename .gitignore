@@ -1,16 +1,15 @@
-*.iml
-.gradle
+# Archivos de compilación
+/build/
+/app/build/
+
+# Archivos de configuración local
 /local.properties
-/.idea
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+/.idea/
+/*.iml
+
+# Archivos generados por el sistema
 .DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+*.log
+
+# Archivos de entorno
+.env

@@ -95,4 +95,10 @@
 	GitHub: github.com/alvgarfer\n
 	From: Madrid, Spain\n
     </string>
+    <string name="m">M</string>
+	<string name="n">N</string>
+	<string name="enhe">Ñ</string>
+    <string name="sonido_off_on">Sonido Off/On</string>
+	<string name="a">A</string>
+	<string name="b">B</string>
 </resources>

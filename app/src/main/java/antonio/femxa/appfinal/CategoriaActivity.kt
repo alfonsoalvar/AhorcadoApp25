@@ -52,7 +52,7 @@ class CategoriaActivity : AppCompatActivity(), AdapterView.OnItemSelectedListene
         val spinner = findViewById<View>(R.id.spinner_categorias) as Spinner
         spinner.setSelection(0)
 
-        musicaOnOff = getIntent().getBooleanExtra("SonidoOn-Off", true)
+        musicaOnOff = getIntent().getBooleanExtra("SonidoOn-Off", false)
 
         val v = findViewById<View>(R.id.btnImagen)
         val ib = v as ImageButton

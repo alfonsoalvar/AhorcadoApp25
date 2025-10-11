@@ -40,16 +40,16 @@
         <item>facoquero</item>
         <item>suricato</item>
         <item>okapi</item>
-        <item>jabalí</item>
+        <item>jabali</item>
         <item>guepardo</item>
         <item>nutria</item>
-        <item>murciélago</item>
+        <item>murcielago</item>
         <item>gato</item>
         <item>caballo</item>
         <item>avestruz</item>
         <item>diablo de tasmania</item>
         <item>cobra real</item>
-        <item>delfín</item>
+        <item>delfin</item>
         <item>lontra</item>
         <item>caracol</item>
         <item>saltamontes</item>
@@ -137,7 +137,7 @@
         <item>sri lanka</item>
         <item>el teide</item>
         <item>la cibeles</item>
-        <item>las médulas</item>
+        <item>las medulas</item>
 
     </string-array>
     <string-array name="peliculas">
@@ -182,7 +182,7 @@
         <item>Rock</item>
         <item>Hip Hop</item>
         <item>Hardcore</item>
-        <item>Electrónica</item>
+        <item>Electronica</item>
         <item>Jazz Fusion</item>
         <item>Blues</item>
         <item>Clasica</item>

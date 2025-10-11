@@ -4,12 +4,10 @@ package antonio.femxa.appfinal
 import android.content.Intent
 import android.graphics.Color
 import android.media.MediaPlayer
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowMetrics
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
@@ -17,11 +15,7 @@ import android.widget.ImageView
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
+import antonio.femxa.appfinal.util.Constantes
 import java.util.Locale
 
 
@@ -43,33 +37,12 @@ class TableroActivity : AppCompatActivity() {
     private var sonidoOnOff: Boolean = false
     private var mediaPlayer: MediaPlayer? = null
 
-    val idUnitAdBanner = "ca-app-pub-9910445535228761/9528197815"
-
-    lateinit var adView: View
-
-    private val adSize: AdSize
-        get() {
-            val displayMetrics = resources.displayMetrics
-            val adWidthPixels =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    val windowMetrics: WindowMetrics = this.windowManager.currentWindowMetrics
-                    windowMetrics.bounds.width()
-                } else {
-                    displayMetrics.widthPixels
-                }
-            val density = displayMetrics.density
-            val adWidth = (adWidthPixels / density).toInt()
-            return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, adWidth)
-        }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tablero)
         val v = findViewById<View>(R.id.btnImagen)
         val ib = v as ImageButton
-
-        crearAnuncio()
 
         contador = 0
         contador_aciertos = 0
@@ -81,7 +54,7 @@ class TableroActivity : AppCompatActivity() {
         mediaPlayer!!.isLooping = true
         mediaPlayer!!.setVolume(100f, 100f)
 
-        sonidoOnOff = getIntent().getBooleanExtra("SonidoOn-Off", true)
+        sonidoOnOff = getIntent().getBooleanExtra("SonidoOn-Off", false)
 
         if (sonidoOnOff) {
             mediaPlayer!!.start()
@@ -104,25 +77,22 @@ class TableroActivity : AppCompatActivity() {
 
         tamaño_palabra = obtenerTamañoPalabra(palabraAux!!)
 
-        val imageView = findViewById<View>(R.id.imagenes_ahorcado) as ImageView
+        val imageView = (findViewById<View>(R.id.imagenes_ahorcado)) as ImageView
         imageView.setImageResource(array_pics[contador])
 
 
         dibujarPanel(palabra)
-        var fila1: TableRow? = findViewById<View>(R.id.lugar_inflado) as TableRow
-        var fila2: TableRow? = findViewById<View>(R.id.lugar_inflado2) as TableRow
-        var fila3: TableRow? = findViewById<View>(R.id.lugar_inflado3) as TableRow
-        var fila4: TableRow? = findViewById<View>(R.id.lugar_inflado4) as TableRow
+        var fila1: TableRow? = (findViewById<View>(R.id.lugar_inflado)) as TableRow
+        var fila2: TableRow? = (findViewById<View>(R.id.lugar_inflado2)) as TableRow
+        var fila3: TableRow? = (findViewById<View>(R.id.lugar_inflado3)) as TableRow
+        var fila4: TableRow? = (findViewById<View>(R.id.lugar_inflado4)) as TableRow
 
-        fila1 = if ((fila1!!.childCount == 0)) null else fila1
-        fila2 = if ((fila2!!.childCount == 0)) null else fila2
-        fila3 = if ((fila3!!.childCount == 0)) null else fila3
-        fila4 = if ((fila4!!.childCount == 0)) null else fila4
+
 
         identificarEditText(fila1, fila2, fila3, fila4)
         ocultarEspacios(palabra)
 
-        val textViewCategoria = findViewById<View>(R.id.textviewcategoria) as TextView
+        val textViewCategoria = (findViewById<View>(R.id.textviewcategoria)) as TextView
 
         val categoria = getIntent().getStringExtra("categoria_seleccionada")
 
@@ -135,7 +105,7 @@ class TableroActivity : AppCompatActivity() {
             if (letrita == palabra[i]) {
                 val et = findViewById<View>(i) as EditText
                 et.setText(letrita.toString() + "")
-                Log.d("MENSAJE", "HA ENCONTRADO LA LETRA $letrita")
+                Log.d(Constantes.ETIQUETA_LOG, "HA ENCONTRADO LA LETRA $letrita")
             }
         }
     }
@@ -146,7 +116,7 @@ class TableroActivity : AppCompatActivity() {
             if (letrita == palabra[i]) {
                 val et = findViewById<View>(i) as EditText
                 et.visibility = View.INVISIBLE
-                Log.d("MENSAJE", "HA ENCONTRADO LA LETRA $letrita")
+                Log.d(Constantes.ETIQUETA_LOG, "HA ENCONTRADO LA LETRA $letrita")
             }
         }
     }
@@ -157,11 +127,12 @@ class TableroActivity : AppCompatActivity() {
         val fila3 = findViewById<View>(R.id.lugar_inflado3) as ViewGroup
         val fila4 = findViewById<View>(R.id.lugar_inflado4) as ViewGroup
 
+
         val longi_palabra = palabra_oculta!!.length
         val layoutInflater = this@TableroActivity.layoutInflater //o LayoutInflater.from(a)
 
         val lista_palabra =
-            palabra_oculta.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                palabra_oculta.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 
         /*for (int z = 0; z < lista_palabra.length-1; z++)
        {
@@ -181,21 +152,21 @@ class TableroActivity : AppCompatActivity() {
                     if (lista_palabra[pos_palabra].length + caracteres_linea_actual < 10) {
                         caracteres_linea_actual++
                         Log.d(
-                            "MENSAJE",
+                            Constantes.ETIQUETA_LOG,
                             "if Case 1: letra " + palabra_oculta[i] + ", linea " + n_linea
                         )
                     } else {
                         caracteres_linea_actual = 1
                         n_linea = 2
                         Log.d(
-                            "MENSAJE",
+                            Constantes.ETIQUETA_LOG,
                             "Else Case 1: letra " + palabra_oculta[i] + ", linea " + n_linea
                         )
                     }
                 } else {
                     val v1: View = layoutInflater.inflate(R.layout.panel, fila1, true)
                     caracteres_linea_actual++
-                    Log.d("MENSAJE", "Case 1: letra " + palabra_oculta[i] + ", linea " + n_linea)
+                    Log.d(Constantes.ETIQUETA_LOG, "Case 1: letra " + palabra_oculta[i] + ", linea " + n_linea)
                 }
 
                 2 -> if (palabra_oculta[i] == ' ') {
@@ -204,21 +175,21 @@ class TableroActivity : AppCompatActivity() {
                     if (lista_palabra[pos_palabra].length + caracteres_linea_actual < 10) {
                         caracteres_linea_actual++
                         Log.d(
-                            "MENSAJE",
+                            Constantes.ETIQUETA_LOG,
                             "Case 2: letra " + palabra_oculta[i] + ", linea " + n_linea
                         )
                     } else {
                         caracteres_linea_actual = 1
                         n_linea = 3
                         Log.d(
-                            "MENSAJE",
+                            Constantes.ETIQUETA_LOG,
                             "Else Case 2: letra " + palabra_oculta[i] + ", linea " + n_linea
                         )
                     }
                 } else {
                     val v1: View = layoutInflater.inflate(R.layout.panel, fila2, true)
                     caracteres_linea_actual++
-                    Log.d("MENSAJE", "Case 2: letra " + palabra_oculta[i] + ", linea " + n_linea)
+                    Log.d(Constantes.ETIQUETA_LOG, "Case 2: letra " + palabra_oculta[i] + ", linea " + n_linea)
                 }
 
 
@@ -229,21 +200,21 @@ class TableroActivity : AppCompatActivity() {
                     if (lista_palabra[pos_palabra].length + caracteres_linea_actual < 10) {
                         caracteres_linea_actual++
                         Log.d(
-                            "MENSAJE",
+                            Constantes.ETIQUETA_LOG,
                             "Case 3: letra " + palabra_oculta[i] + ", linea " + n_linea
                         )
                     } else {
                         caracteres_linea_actual = 1
                         n_linea = 4
                         Log.d(
-                            "MENSAJE",
+                            Constantes.ETIQUETA_LOG,
                             "Else Case 3: letra " + palabra_oculta[i] + ", linea " + n_linea
                         )
                     }
                 } else {
                     val v1: View = layoutInflater.inflate(R.layout.panel, fila3, true)
                     caracteres_linea_actual++
-                    Log.d("MENSAJE", "Case 3: letra " + palabra_oculta[i] + ", linea " + n_linea)
+                    Log.d(Constantes.ETIQUETA_LOG, "Case 3: letra " + palabra_oculta[i] + ", linea " + n_linea)
                 }
 
 
@@ -254,16 +225,16 @@ class TableroActivity : AppCompatActivity() {
                     if (lista_palabra[pos_palabra].length + caracteres_linea_actual < 10) {
                         caracteres_linea_actual++
                         Log.d(
-                            "MENSAJE",
+                            Constantes.ETIQUETA_LOG,
                             "Case 4: letra " + palabra_oculta[i] + ", linea " + n_linea
                         )
                     } else {
-                        Log.d("MENSAJE", "La cadena tiene más extensión de la permitida")
+                        Log.d(Constantes.ETIQUETA_LOG, "La cadena tiene más extensión de la permitida")
                     }
                 } else {
                     val v1: View = layoutInflater.inflate(R.layout.panel, fila4, true)
                     caracteres_linea_actual++
-                    Log.d("MENSAJE", "Case 4: letra " + palabra_oculta[i] + ", linea " + n_linea)
+                    Log.d(Constantes.ETIQUETA_LOG, "Case 4: letra " + palabra_oculta[i] + ", linea " + n_linea)
                 }
 
                 else -> {}
@@ -284,24 +255,24 @@ class TableroActivity : AppCompatActivity() {
                 val linear = rowLugarInflado1.getChildAt(i) as ViewGroup
                 val et = linear.getChildAt(0) as EditText
                 et.id = i
-                Log.d("MENSAJE", "editado EditText n: $i")
-                Log.d("MENSAJE", "Id de EditText: " + et.id)
+                Log.d(Constantes.ETIQUETA_LOG, "editado EditText n: $i")
+                Log.d(Constantes.ETIQUETA_LOG, "Id de EditText: " + et.id)
                 cont_aux++
             }
 
-            Log.d("MENSAJE", rowLugarInflado2.toString())
+            Log.d(Constantes.ETIQUETA_LOG, rowLugarInflado2.toString())
             if (rowLugarInflado2 != null) {
                 for (i in 0 until (rowLugarInflado2.childCount)) {
                     val linear = rowLugarInflado2.getChildAt(i) as ViewGroup
                     val et = linear.getChildAt(0) as EditText
-                    Log.d("MENSAJE", et.toString())
+                    Log.d(Constantes.ETIQUETA_LOG, et.toString())
                     et.id = cont_aux
-                    Log.d("MENSAJE", "editado EditText n: $cont_aux")
-                    Log.d("MENSAJE", "Id de EditText: " + et.id)
+                    Log.d(Constantes.ETIQUETA_LOG, "editado EditText n: $cont_aux")
+                    Log.d(Constantes.ETIQUETA_LOG, "Id de EditText: " + et.id)
                     cont_aux++
                 }
             } else {
-                Log.d("MENSAJE", "no hay segunda fila")
+                Log.d(Constantes.ETIQUETA_LOG, "no hay segunda fila")
             }
 
             if (rowLugarInflado3 != null) {
@@ -311,12 +282,12 @@ class TableroActivity : AppCompatActivity() {
                     val linear = rowLugarInflado3.getChildAt(i) as ViewGroup
                     val et = linear.getChildAt(0) as EditText
                     et.id = cont_aux
-                    Log.d("MENSAJE", "editado EditText n: $cont_aux")
-                    Log.d("MENSAJE", "Id de EditText: " + et.id)
+                    Log.d(Constantes.ETIQUETA_LOG, "editado EditText n: $cont_aux")
+                    Log.d(Constantes.ETIQUETA_LOG, "Id de EditText: " + et.id)
                     cont_aux++
                 }
             } else {
-                Log.d("MENSAJE", "no hay tercera fila")
+                Log.d(Constantes.ETIQUETA_LOG, "no hay tercera fila")
             }
 
             if (rowLugarInflado4 != null) {
@@ -326,22 +297,22 @@ class TableroActivity : AppCompatActivity() {
                     val linear = rowLugarInflado4.getChildAt(i) as ViewGroup
                     val et = linear.getChildAt(0) as EditText
                     et.id = cont_aux
-                    Log.d("MENSAJE", "editado EditText n: $cont_aux")
-                    Log.d("MENSAJE", "Id de EditText: " + et.id)
+                    Log.d(Constantes.ETIQUETA_LOG, "editado EditText n: $cont_aux")
+                    Log.d(Constantes.ETIQUETA_LOG, "Id de EditText: " + et.id)
                     cont_aux++
                 }
             } else {
-                Log.d("MENSAJE", "no hay cuarta fila")
+                Log.d(Constantes.ETIQUETA_LOG, "no hay cuarta fila")
             }
         } catch (t: Throwable) {
-            Log.e("MENSAJE", "ERROR", t)
+            Log.e(Constantes.ETIQUETA_LOG, "ERROR", t)
         }
     }
 
-    fun escribirNumero(boton: View) {
+     fun escribirNumero(boton: View) {
         // declaramos variables y hacemos el casteo del boton para usarle
         var palabra = getPalabra()
-        Log.d("MENSAJE", palabra!!)
+        Log.d(Constantes.ETIQUETA_LOG, palabra!!)
         val btnPulsado = boton as Button
         val pulsado = btnPulsado.text.toString() //cogemos el texto del boton pulsado
 
@@ -367,8 +338,8 @@ class TableroActivity : AppCompatActivity() {
     fun letraAcertada(button: Button) {
         button.setTextColor(Color.rgb(34, 153, 84))
 
-        Log.d("MENSAJE", "$contador_aciertos contador")
-        Log.d("MENSAJE", "$tamaño_palabra tamaño")
+        Log.d(Constantes.ETIQUETA_LOG, "$contador_aciertos contador")
+        Log.d(Constantes.ETIQUETA_LOG, "$tamaño_palabra tamaño")
 
         if (contador_aciertos == tamaño_palabra) {
             intent = Intent(this@TableroActivity, VictoriaActivity::class.java)
@@ -451,61 +422,5 @@ class TableroActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         mediaPlayer!!.stop()
-    }
-
-    fun crearAnuncio ()
-    {
-
-        //obtengo un anuncio
-        val adView = AdView(this)
-        adView.adUnitId = idUnitAdBanner
-        adView.setAdSize(adSize)
-        this.adView = adView
-
-        //refresco el XML
-        val adviewxml = findViewById<AdView> (R.id.anuncio)
-        adviewxml.removeAllViews()
-        adviewxml.addView(this.adView)
-
-        //cargo el anuncio
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
-
-
-
-        adView.adListener = object: AdListener() {
-            override fun onAdClicked() {
-                // Code to be executed when the user clicks on an ad.
-                Log.d("MIAPP","onAdClicked()" )
-            }
-
-            override fun onAdClosed() {
-                // Code to be executed when the user is about to return
-                // to the app after tapping on an ad.
-                Log.d("MIAPP","onAdClosed()" )
-            }
-
-            override fun onAdFailedToLoad(adError : LoadAdError) {
-                // Code to be executed when an ad request fails.
-                Log.d("MIAPP","onAdFailedToLoad()" )
-            }
-
-            override fun onAdImpression() {
-                // Code to be executed when an impression is recorded
-                // for an ad.
-                Log.d("MIAPP","onAdImpression()" )
-            }
-
-            override fun onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-                Log.d("MIAPP","onAdLoaded()" )
-            }
-
-            override fun onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-                Log.d("MIAPP","onAdOpened()" )
-            }
-        }
     }
 }

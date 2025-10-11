@@ -18,35 +18,29 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="@string/api_publi"/>
+            android:value="ca-app-pub-9910445535228761~4203661473"/>
 
         <activity
-            android:screenOrientation="portrait"
             android:configChanges="keyboard|screenSize|orientation"
             android:name=".TableroActivity"
             android:exported="false" />
         <activity
-            android:screenOrientation="portrait"
             android:configChanges="keyboard|screenSize|orientation"
             android:name=".VictoriaActivity"
             android:exported="false" />
         <activity
-            android:screenOrientation="portrait"
             android:configChanges="keyboard|screenSize|orientation"
             android:name=".DerrotaActivity"
             android:exported="false" />
         <activity
-            android:screenOrientation="portrait"
             android:configChanges="keyboard|screenSize|orientation"
             android:name=".CreditosActivity"
             android:exported="false" />
         <activity
-            android:screenOrientation="portrait"
             android:configChanges="keyboard|screenSize|orientation"
             android:name=".CategoriaActivity"
             android:exported="false" />
         <activity
-            android:screenOrientation="portrait"
             android:configChanges="keyboard|screenSize|orientation"
             android:name=".InicialActivity"
             android:exported="true">
