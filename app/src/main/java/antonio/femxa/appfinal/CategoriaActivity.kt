@@ -1,196 +1,189 @@
 package antonio.femxa.appfinal
 
-
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ImageButton
-import android.widget.Spinner
+import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import antonio.femxa.appfinal.ui.theme.AhorcadoApp25Theme
 
+class CategoriaActivity : ComponentActivity() {
 
-class CategoriaActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
-    private var spCategorias: Spinner? = null
     private var mediaPlayer: MediaPlayer? = null
-    private var intent: Intent? = null
-    private var musicaOnOff: Boolean = false
+    var musicaOnOff: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_categoria)
-        this.spCategorias = findViewById<View>(R.id.spinner_categorias) as Spinner
 
-        loadSpinnerCategorias()
+        musicaOnOff = intent.getBooleanExtra("SonidoOn-Off", false)
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.inicio)
+        mediaPlayer?.isLooping = true
+        mediaPlayer?.setVolume(100f, 100f)
 
-        //programo el evento de botón hacia atrás
-        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+        setContent {
+            AhorcadoApp25Theme {
+                CategoriaScreen(
+                    musicaOn = musicaOnOff,
+                    onCategorySelected = { categoria, palabra ->
+                        val intent = Intent(this, TableroActivity::class.java).apply {
+                            putExtra("palabra_clave", palabra)
+                            putExtra("categoria_seleccionada", categoria)
+                            putExtra("SonidoOn-Off", musicaOnOff)
+                        }
+                        startActivity(intent)
+                    },
+                    onSoundToggle = {
+                        musicaOnOff = !musicaOnOff
+                        if (mediaPlayer?.isPlaying == true) {
+                            mediaPlayer?.pause()
+                        } else {
+                            mediaPlayer?.start()
+                        }
+                    }
+                )
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                intent = Intent(this@CategoriaActivity, InicialActivity::class.java)
-
-                if (musicaOnOff) {
-                    intent!!.putExtra("SonidoOn-Off", true)
-                } else {
-                    intent!!.putExtra("SonidoOn-Off", false)
+                val intent = Intent(this@CategoriaActivity, InicialActivity::class.java).apply {
+                    putExtra("SonidoOn-Off", musicaOnOff)
                 }
-
                 startActivity(intent)
             }
         })
     }
 
-    /**
-     * Cada vez que el activity vuelva de una pausa el spinner se coloca en la posicion selecciona una categoria
-     */
     override fun onResume() {
         super.onResume()
-        val spinner = findViewById<View>(R.id.spinner_categorias) as Spinner
-        spinner.setSelection(0)
-
-        musicaOnOff = getIntent().getBooleanExtra("SonidoOn-Off", false)
-
-        val v = findViewById<View>(R.id.btnImagen)
-        val ib = v as ImageButton
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.inicio)
-        mediaPlayer!!.isLooping = true
-        mediaPlayer!!.setVolume(100f, 100f)
-
         if (musicaOnOff) {
-            mediaPlayer!!.start()
-            ib.setImageResource(R.drawable.ic_volume_off)
-        } else {
-            ib.setImageResource(R.drawable.ic_volume_up)
+            mediaPlayer?.start()
         }
-
-        ponerMusica()
     }
 
     override fun onPause() {
         super.onPause()
-        val v = findViewById<View>(R.id.btnImagen)
-        val ib = v as ImageButton
-
-        mediaPlayer!!.stop()
-
-        if (!musicaOnOff) ib.setImageResource(R.drawable.ic_volume_up)
+        mediaPlayer?.pause()
     }
 
-    /**
-     * Cargamos el spinner con el array que esta en categorias.xml
-     */
-    fun loadSpinnerCategorias() {
-        val adapter =
-            ArrayAdapter.createFromResource(this, R.array.categorias, android.R.layout.simple_spinner_item)
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-        spCategorias!!.adapter = adapter
-
-        spCategorias!!.setOnItemSelectedListener(this)
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
+}
 
-    /**
-     * Cada vez que se cambie el spinner y no sea la posicion 0(selecciona una categoria) carga
-     * el array conrrespondiente de esa categoria, obtiene un string aleatorio de ella
-     * y se redirige a activity_tablero con el string conseguido
-     * @param parent
-     * @param view
-     * @param pos La posicion del array de categorias
-     * @param id
-     */
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-        if (pos != 0) {
-            val array_categorias = resources.obtainTypedArray(R.array.array_categorias)
-            val array_especifico = array_categorias.getTextArray(pos)
-            array_categorias.recycle()
+@Composable
+fun CategoriaScreen(
+    musicaOn: Boolean,
+    onCategorySelected: (String, String) -> Unit,
+    onSoundToggle: () -> Unit
+) {
+    val context = LocalContext.current
+    val categories = stringArrayResource(R.array.categorias).toList()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf(categories.getOrElse(0) { "Selecciona categoría" }) }
+    var musicaState by remember { mutableStateOf(musicaOn) }
 
-            val palabra = palabraOculta(array_especifico)
-
-            Log.d("MENSAJE2", palabra)
-
-
-            intent = Intent(this@CategoriaActivity, TableroActivity::class.java)
-
-            intent!!.putExtra("palabra_clave", palabra)
-
-            val spinner = findViewById<View>(R.id.spinner_categorias) as Spinner
-
-            val aa = spinner.selectedItem.toString()
-            intent!!.putExtra("categoria_seleccionada", aa)
-
-            if (musicaOnOff) {
-                intent!!.putExtra("SonidoOn-Off", true)
-            } else {
-                intent!!.putExtra("SonidoOn-Off", false)
-            }
-
-            startActivity(intent)
-        }
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-    }
-
-    /**
-     * Dado un array de strings te devuelve un string aleatorio de ese array
-     * @param array_especifico
-     * @return
-     */
     fun palabraOculta(array_especifico: Array<CharSequence>): String {
-        var palabra: String? = null
-
         val aleatoria = (Math.random() * array_especifico.size).toInt()
         Log.d("MENSAJE2", aleatoria.toString() + " " + array_especifico.size)
-        palabra = array_especifico[aleatoria].toString()
+        return array_especifico[aleatoria].toString()
+    }
 
+    fun getWordForCategory(pos: Int): String {
+        if (pos == 0) return ""
+        val array_categorias = context.resources.obtainTypedArray(R.array.array_categorias)
+        val array_especifico = array_categorias.getTextArray(pos)
+        array_categorias.recycle()
+        val palabra = palabraOculta(array_especifico)
+        Log.d("MENSAJE2", palabra)
         return palabra
     }
 
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Selecciona una categoría")
+            Spacer(modifier = Modifier.height(16.dp))
 
-    fun ponerMusica() {
-        super.onStart()
+            Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
+                Button(onClick = { expanded = !expanded }) {
+                    Text(selectedCategory)
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    categories.forEachIndexed { index, category ->
+                        DropdownMenuItem(
+                            text = { Text(text = category) },
+                            onClick = {
+                                selectedCategory = category
+                                expanded = false
+                                if (index != 0) {
+                                    val palabra = getWordForCategory(index)
+                                    onCategorySelected(category, palabra)
+                                }
+                            }
+                        )
+                    }
+                }
+            }
 
+            Spacer(modifier = Modifier.height(32.dp))
 
-        val v = findViewById<View>(R.id.btnImagen)
-        val ib = v as ImageButton
-
-        ib.setOnClickListener {
-            if (mediaPlayer!!.isPlaying) {
-                mediaPlayer!!.pause()
-                ib.setImageResource(R.drawable.ic_volume_off)
-                musicaOnOff = false
-            } else {
-                ib.setImageResource(R.drawable.ic_volume_up)
-                mediaPlayer = MediaPlayer.create(this@CategoriaActivity, R.raw.inicio)
-                mediaPlayer!!.isLooping = true
-                mediaPlayer!!.setVolume(100f, 100f)
-                mediaPlayer!!.start()
-                musicaOnOff = true
+            IconButton(onClick = {
+                musicaState = !musicaState
+                onSoundToggle()
+            }) {
+                Icon(
+                    painter = painterResource(id = if (musicaState) R.drawable.ic_volume_up else R.drawable.ic_volume_off),
+                    contentDescription = "Toggle Sound"
+                )
             }
         }
     }
+}
 
-
-
-   /* override fun onBackPressed() {
-
-//super.onBackPressed();
-
-        intent = Intent(this@CategoriaActivity, InicialActivity::class.java)
-
-        if (musicaOnOff) {
-            intent!!.putExtra("SonidoOn-Off", true)
-        } else {
-            intent!!.putExtra("SonidoOn-Off", false)
-        }
-
-        startActivity(intent)
-        super.onBackPressed()
-    }*/
+@Preview(showBackground = true)
+@Composable
+fun CategoriaPreview() {
+    CategoriaScreen(musicaOn = false, onCategorySelected = { _, _ -> }, onSoundToggle = {})
 }
