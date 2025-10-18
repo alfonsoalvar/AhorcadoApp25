@@ -3,9 +3,11 @@ package antonio.femxa.appfinal
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,66 +18,88 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import antonio.femxa.appfinal.ui.theme.AhorcadoApp25Theme
+import kotlinx.coroutines.flow.collectLatest
 
 class VictoriaActivity : ComponentActivity() {
-    private var palabra: String? = null
-    private var musicaOnOff: Boolean = false
+
+    private val viewModel: EndGameViewModel by viewModels()
     private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        palabra = intent.getStringExtra("palabra_clave")
-        musicaOnOff = intent.getBooleanExtra("SonidoOn-Off", true)
+        val palabra = intent.getStringExtra("palabra_clave") ?: ""
+        val musicaOnOff = intent.getBooleanExtra("SonidoOn-Off", true)
+
+        viewModel.initialize(palabra, musicaOnOff)
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.sonido_ganador).apply {
+            isLooping = false
+            setVolume(100f, 100f)
+        }
 
         setContent {
-            VictoriaScreen(
-                palabra = palabra ?: "",
-                onJugarDeNuevoClicked = {
-                    val intent = Intent(this, CategoriaActivity::class.java)
-                    intent.putExtra("SonidoOn-Off", musicaOnOff)
-                    startActivity(intent)
-                    finish()
-                },
-                onMenuPrincipalClicked = {
-                    val intent = Intent(this, InicialActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                    finish()
-                },
-                onCompartirClicked = {
-                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, "¡He ganado al Ahorcado! La palabra era: ${palabra ?: ""}")
-                    }
-                    startActivity(Intent.createChooser(shareIntent, "Compartir victoria"))
+            val uiState by viewModel.uiState.collectAsState()
+
+            LaunchedEffect(uiState.musicaOn) {
+                if (uiState.musicaOn) {
+                    mediaPlayer?.start()
                 }
-            )
+            }
+
+            LaunchedEffect(Unit) {
+                viewModel.navigationEvent.collectLatest { event ->
+                    when (event) {
+                        is NavigationEvent.NavigateToCategoria -> {
+                            val intent = Intent(this@VictoriaActivity, CategoriaActivity::class.java)
+                            intent.putExtra("SonidoOn-Off", event.musicaOn)
+                            startActivity(intent)
+                            finish()
+                        }
+                        is NavigationEvent.NavigateToMenu -> {
+                            val intent = Intent(this@VictoriaActivity, InicialActivity::class.java).apply {
+                                putExtra("SonidoOn-Off", event.musicaOn)
+                                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            startActivity(intent)
+                            finish()
+                        }
+                        is NavigationEvent.Share -> {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, event.message)
+                            }
+                            startActivity(Intent.createChooser(shareIntent, "Compartir victoria"))
+                        }
+                        else -> Log.d("VictoriaActivity", "Unhandled navigation event: $event")
+                    }
+                }
+            }
+
+            AhorcadoApp25Theme {
+                VictoriaScreen(
+                    palabra = uiState.palabra,
+                    onJugarDeNuevoClicked = viewModel::onPlayAgainClicked,
+                    onMenuPrincipalClicked = viewModel::onMainMenuClicked,
+                    onCompartirClicked = viewModel::onShareClicked
+                )
+            }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val intent = Intent(this@VictoriaActivity, CategoriaActivity::class.java)
-                startActivity(intent)
-                finish()
+                viewModel.onPlayAgainClicked()
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mediaPlayer = MediaPlayer.create(this, R.raw.sonido_ganador)
-        mediaPlayer?.isLooping = false
-        mediaPlayer?.setVolume(100f, 100f)
-
-        if (musicaOnOff) {
-            mediaPlayer?.start()
-        }
     }
 
     override fun onPause() {
@@ -119,5 +143,13 @@ fun VictoriaScreen(
                 Text("Compartir")
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun VictoriaScreenPreview() {
+    AhorcadoApp25Theme {
+        VictoriaScreen("PALABRA", {}, {}, {})
     }
 }

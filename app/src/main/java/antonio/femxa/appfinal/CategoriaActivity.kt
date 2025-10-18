@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,77 +24,111 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import antonio.femxa.appfinal.ui.theme.AhorcadoApp25Theme
+import kotlinx.coroutines.flow.collectLatest
 
 class CategoriaActivity : ComponentActivity() {
 
+    private val viewModel: CategoriaViewModel by viewModels()
     private var mediaPlayer: MediaPlayer? = null
-    var musicaOnOff: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        musicaOnOff = intent.getBooleanExtra("SonidoOn-Off", false)
+        // 1. Cargar todos los datos iniciales desde la Activity
+        val musicaOnOff = intent.getBooleanExtra("SonidoOn-Off", false)
+        val categories = resources.getStringArray(R.array.categorias).toList()
+        val wordArrays = listOf(
+            resources.getStringArray(R.array.animales).toList(),
+            resources.getStringArray(R.array.deportes).toList(),
+            resources.getStringArray(R.array.eñe_palabras).toList(),
+            resources.getStringArray(R.array.estilosmusicales).toList(),
+            resources.getStringArray(R.array.famosos).toList(),
+            resources.getStringArray(R.array.fruta).toList(),
+            resources.getStringArray(R.array.lugares).toList(),
+            resources.getStringArray(R.array.peliculas).toList(),
+            resources.getStringArray(R.array.internet).toList()
+        )
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.inicio)
-        mediaPlayer?.isLooping = true
-        mediaPlayer?.setVolume(100f, 100f)
+        // 2. Pasarlos UNA SOLA VEZ al ViewModel
+        viewModel.init(musicaOnOff, categories, wordArrays)
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.inicio).apply {
+            isLooping = true
+            setVolume(100f, 100f)
+        }
 
         setContent {
+            // 3. La UI se suscribe al estado del ViewModel
+            val uiState by viewModel.uiState.collectAsState()
+
+            LaunchedEffect(uiState.musicaOn) {
+                if (uiState.musicaOn && mediaPlayer?.isPlaying == false) {
+                    mediaPlayer?.start()
+                } else if (!uiState.musicaOn && mediaPlayer?.isPlaying == true) {
+                    mediaPlayer?.pause()
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                viewModel.navigationEvent.collectLatest { event ->
+                    when (event) {
+                        is NavigationEvent.NavigateToTablero -> {
+                            val intent = Intent(this@CategoriaActivity, TableroActivity::class.java).apply {
+                                putExtra("palabra_clave", event.palabra)
+                                putExtra("categoria_seleccionada", event.categoria)
+                                putExtra("SonidoOn-Off", event.musicaOn)
+                            }
+                            startActivity(intent)
+                        }
+                        is NavigationEvent.NavigateToMenu -> {
+                            val intent = Intent(this@CategoriaActivity, InicialActivity::class.java).apply {
+                                putExtra("SonidoOn-Off", event.musicaOn)
+                            }
+                            startActivity(intent)
+                        }
+                        else -> Log.d("CategoriaActivity", "Unhandled navigation event: $event")
+                    }
+                }
+            }
+
             AhorcadoApp25Theme {
                 CategoriaScreen(
-                    musicaOn = musicaOnOff,
-                    onCategorySelected = { categoria, palabra ->
-                        val intent = Intent(this, TableroActivity::class.java).apply {
-                            putExtra("palabra_clave", palabra)
-                            putExtra("categoria_seleccionada", categoria)
-                            putExtra("SonidoOn-Off", musicaOnOff)
-                        }
-                        startActivity(intent)
-                    },
-                    onSoundToggle = {
-                        musicaOnOff = !musicaOnOff
-                        if (mediaPlayer?.isPlaying == true) {
-                            mediaPlayer?.pause()
-                        } else {
-                            mediaPlayer?.start()
-                        }
-                    }
+                    uiState = uiState,
+                    onCategorySelected = viewModel::onCategorySelected,
+                    onSoundToggle = viewModel::onSoundToggle,
+                    onDropdownToggle = viewModel::onDropdownToggle
                 )
             }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val intent = Intent(this@CategoriaActivity, InicialActivity::class.java).apply {
-                    putExtra("SonidoOn-Off", musicaOnOff)
-                }
-                startActivity(intent)
+                viewModel.onBackPressed()
             }
         })
     }
 
     override fun onResume() {
         super.onResume()
-        if (musicaOnOff) {
+        if (viewModel.uiState.value.musicaOn && mediaPlayer?.isPlaying == false) {
             mediaPlayer?.start()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        mediaPlayer?.pause()
+        if (mediaPlayer?.isPlaying == true) {
+            mediaPlayer?.pause()
+        }
     }
 
     override fun onDestroy() {
@@ -105,32 +140,11 @@ class CategoriaActivity : ComponentActivity() {
 
 @Composable
 fun CategoriaScreen(
-    musicaOn: Boolean,
-    onCategorySelected: (String, String) -> Unit,
-    onSoundToggle: () -> Unit
+    uiState: CategoriaUiState,
+    onCategorySelected: (String, Int) -> Unit,
+    onSoundToggle: () -> Unit,
+    onDropdownToggle: (Boolean) -> Unit
 ) {
-    val context = LocalContext.current
-    val categories = stringArrayResource(R.array.categorias).toList()
-    var expanded by remember { mutableStateOf(false) }
-    var selectedCategory by remember { mutableStateOf(categories.getOrElse(0) { "Selecciona categoría" }) }
-    var musicaState by remember { mutableStateOf(musicaOn) }
-
-    fun palabraOculta(array_especifico: Array<CharSequence>): String {
-        val aleatoria = (Math.random() * array_especifico.size).toInt()
-        Log.d("MENSAJE2", aleatoria.toString() + " " + array_especifico.size)
-        return array_especifico[aleatoria].toString()
-    }
-
-    fun getWordForCategory(pos: Int): String {
-        if (pos == 0) return ""
-        val array_categorias = context.resources.obtainTypedArray(R.array.array_categorias)
-        val array_especifico = array_categorias.getTextArray(pos)
-        array_categorias.recycle()
-        val palabra = palabraOculta(array_especifico)
-        Log.d("MENSAJE2", palabra)
-        return palabra
-    }
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -144,24 +158,17 @@ fun CategoriaScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
-                Button(onClick = { expanded = !expanded }) {
-                    Text(selectedCategory)
+                Button(onClick = { onDropdownToggle(!uiState.expanded) }) {
+                    Text(uiState.selectedCategory)
                 }
                 DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    expanded = uiState.expanded,
+                    onDismissRequest = { onDropdownToggle(false) }
                 ) {
-                    categories.forEachIndexed { index, category ->
+                    uiState.categories.forEachIndexed { index, category ->
                         DropdownMenuItem(
                             text = { Text(text = category) },
-                            onClick = {
-                                selectedCategory = category
-                                expanded = false
-                                if (index != 0) {
-                                    val palabra = getWordForCategory(index)
-                                    onCategorySelected(category, palabra)
-                                }
-                            }
+                            onClick = { onCategorySelected(category, index) }
                         )
                     }
                 }
@@ -169,12 +176,9 @@ fun CategoriaScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            IconButton(onClick = {
-                musicaState = !musicaState
-                onSoundToggle()
-            }) {
+            IconButton(onClick = onSoundToggle) {
                 Icon(
-                    painter = painterResource(id = if (musicaState) R.drawable.ic_volume_up else R.drawable.ic_volume_off),
+                    painter = painterResource(id = if (uiState.musicaOn) R.drawable.ic_volume_up else R.drawable.ic_volume_off),
                     contentDescription = "Toggle Sound"
                 )
             }
@@ -185,5 +189,15 @@ fun CategoriaScreen(
 @Preview(showBackground = true)
 @Composable
 fun CategoriaPreview() {
-    CategoriaScreen(musicaOn = false, onCategorySelected = { _, _ -> }, onSoundToggle = {})
+    AhorcadoApp25Theme {
+        CategoriaScreen(
+            uiState = CategoriaUiState(
+                categories = listOf("Ciencia", "Deportes", "Geografía"),
+                selectedCategory = "Ciencia"
+            ),
+            onCategorySelected = { _, _ -> },
+            onSoundToggle = {},
+            onDropdownToggle = {}
+        )
+    }
 }

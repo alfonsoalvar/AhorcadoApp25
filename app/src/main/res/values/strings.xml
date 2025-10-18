@@ -2,6 +2,13 @@
     <string name="app_name">Ahorcado</string>
 	<string name="title_activity_tablero">TableroActivity</string>
     <string name="creditos">
+		\n
+		ADAPTACIÓN A JETPACK COMPOSE\n
+		\n
+		Alfonso Alvar Vázquez\n
+		Contact: hola@alfonsoalvar.com\n
+		GitHub: github.com/alfonsoalvar\n
+		From: Santiago de Compostela, Spain\n
         \n
         EQUIPO FEMXA\n
         \n
