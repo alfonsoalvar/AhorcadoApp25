@@ -196,7 +196,7 @@ fun PalabraOculta(palabraMostrada: String) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Teclado(letrasPulsadas: Set<Char>, juegoTerminado: Boolean, onLetraPulsada: (Char) -> Unit) {
-    val teclado = "QWERTYUIOPASDFGHJKLZXCVBNM"
+    val teclado = "QWERTYUIOPASDFGHJKLÑZXCVBNM"
 
     FlowRow(
         modifier = Modifier
