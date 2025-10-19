@@ -239,7 +239,7 @@ fun Teclado(letrasPulsadas: Set<Char>, juegoTerminado: Boolean, onLetraPulsada: 
 fun TableroPreview() {
     AhorcadoApp25Theme {
         TableroScreen(
-            uiState = TableroUiState(palabraOculta = "H O L A", categoria = "SALUDOS", sonidoOn = true, errores = 2),
+            uiState = TableroUiState(palabraOculta = "H O L A", categoria = "SALUDOS", sonidoOn = true, errores = 6),
             onSonidoToggle = {},
             onLetraPulsada = {}
         )

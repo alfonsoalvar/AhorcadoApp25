@@ -1,5 +1,6 @@
 package antonio.femxa.appfinal
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -37,13 +38,17 @@ class CategoriaViewModel : ViewModel() {
     fun onCategorySelected(category: String, index: Int) {
         _uiState.update { it.copy(selectedCategory = category, expanded = false) }
 
-        val palabrasDeCategoria = _uiState.value.wordArrays.getOrNull(index)
+        Log.d("CategoriaViewModel",  _uiState.value.wordArrays.toString())
+
+        val palabrasDeCategoria = _uiState.value.wordArrays.getOrNull(index - 1)
+        Log.d("CategoriaViewModel", palabrasDeCategoria.toString())
         if (palabrasDeCategoria.isNullOrEmpty()) {
             // Opcional: manejar el caso de que no haya palabras para la categoría
             return
         }
 
         val palabraOculta = palabrasDeCategoria.random()
+        Log.d("CategoriaViewModel", palabraOculta)
 
         viewModelScope.launch {
             _navigationEvent.send(

@@ -7,13 +7,12 @@
         <item>@array/animales</item>
         <item>@array/deportes</item>
         <item>@array/eñe_palabras</item>
+        <item>@array/estilosmusicales</item>
         <item>@array/famosos</item>
         <item>@array/fruta</item>
+        <item>@array/internet</item>
         <item>@array/lugares</item>
         <item>@array/peliculas</item>
-        <item>@array/internet</item>
-        <item>@array/estilosmusicales</item>
-
     </array>
 
     <string-array name="categorias">
@@ -21,14 +20,14 @@
         <item>Animales</item>
         <item>Deportes</item>
         <item>Eñe palabras</item>
+        <item>Estilos musicales</item>
         <item>Famosos</item>
         <item>Frutas</item>
+        <item>Internet</item>
         <item>Lugares</item>
         <item>Películas</item>
-        <item>Internet</item>
-        <item>Estilos musicales</item>
-
     </string-array>
+
     <string-array name="animales">
         <item>ciervo almizclero</item>
         <item>estrella de mar</item>
@@ -54,8 +53,8 @@
         <item>caracol</item>
         <item>saltamontes</item>
         <item>liebre</item>
-
     </string-array>
+
     <string-array name="deportes">
         <item>tenis de mesa</item>
         <item>baloncesto</item>
@@ -72,8 +71,8 @@
         <item>escalada</item>
         <item>polo</item>
         <item>hipica</item>
-
     </string-array>
+
     <string-array name="eñe_palabras">
         <item>añejo</item>
         <item>amañado</item>
@@ -89,8 +88,8 @@
         <item>campiña</item>
         <item>champiñon</item>
         <item>piñones</item>
-
     </string-array>
+
     <string-array name="famosos">
         <item>bruce willis</item>
         <item>matt damon</item>
@@ -105,8 +104,8 @@
         <item>antonio banderas</item>
         <item>will smith</item>
         <item>mel gibson</item>
-
     </string-array>
+
     <string-array name="fruta">
         <item>fruta de la pasion</item>
         <item>mano de buda</item>
@@ -121,9 +120,8 @@
         <item>aguacate</item>
         <item>caqui</item>
         <item>nectarina</item>
-
-
     </string-array>
+
     <string-array name="lugares">
         <item>plaza españa</item>
         <item>alhambra de granada</item>
@@ -138,8 +136,8 @@
         <item>el teide</item>
         <item>la cibeles</item>
         <item>las medulas</item>
-
     </string-array>
+
     <string-array name="peliculas">
         <item></item>
         <item>cincuenta sombras de grey</item>
@@ -155,8 +153,8 @@
         <item>el mito de bourne</item>
         <item>psicosis</item>
         <item>seven</item>
-
     </string-array>
+
     <string-array name="internet">
         <item>memes</item>
         <item>hashtag</item>
@@ -199,6 +197,5 @@
         <item>Rithm and Blues</item>
         <item>Flamenco</item>
     </string-array>
-
 
 </resources>

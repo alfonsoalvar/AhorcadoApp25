@@ -53,9 +53,9 @@ class CategoriaActivity : ComponentActivity() {
             resources.getStringArray(R.array.estilosmusicales).toList(),
             resources.getStringArray(R.array.famosos).toList(),
             resources.getStringArray(R.array.fruta).toList(),
+            resources.getStringArray(R.array.internet).toList(),
             resources.getStringArray(R.array.lugares).toList(),
             resources.getStringArray(R.array.peliculas).toList(),
-            resources.getStringArray(R.array.internet).toList()
         )
 
         // 2. Pasarlos UNA SOLA VEZ al ViewModel

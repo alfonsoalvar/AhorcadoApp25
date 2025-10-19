@@ -1,6 +1,7 @@
 # Archivos de compilación
 /build/
 /app/build/
+.gradle/
 
 # Archivos de configuración local
 /local.properties
