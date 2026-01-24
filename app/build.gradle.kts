@@ -8,11 +8,11 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "antonio.femxa.appfinal"
+        applicationId = "com.alfonsoalvar.ahorcado"
         minSdk = 21
         targetSdk = 35
-        versionCode = 4
-        versionName = "2.2 ADDS"
+        versionCode = 5
+        versionName = "3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
