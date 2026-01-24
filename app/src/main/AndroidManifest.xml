@@ -16,10 +16,6 @@
         tools:overrideLibrary="com.google.android.material"
         >
 
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-9910445535228761~4203661473"/>
-
         <activity
             android:configChanges="keyboard|screenSize|orientation"
             android:name=".TableroActivity"
