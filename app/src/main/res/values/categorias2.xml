@@ -13,6 +13,7 @@
         <item>@array/internet</item>
         <item>@array/lugares</item>
         <item>@array/peliculas</item>
+        <item>@array/personajesinfantiles</item>
     </array>
 
     <string-array name="categorias">
@@ -26,6 +27,7 @@
         <item>Internet</item>
         <item>Lugares</item>
         <item>Películas</item>
+        <item>Personajes infantiles</item>
     </string-array>
 
     <string-array name="animales">
@@ -196,6 +198,30 @@
         <item>Folk</item>
         <item>Rithm and Blues</item>
         <item>Flamenco</item>
+    </string-array>
+
+    <string-array name="personajesinfantiles">
+        <item>Mickey Mouse</item>
+        <item>Pinocho</item>
+        <item>Cenicienta</item>
+        <item>Rayo McQueen</item>
+        <item>Buzz Lightyear</item>
+        <item>Olaf</item>
+        <item>Simba</item>
+        <item>Peppa Pig</item>
+        <item>Bluey</item>
+        <item>Pikachu</item>
+        <item>Dora la Exploradora</item>
+        <item>Chase</item> <!-- de Paw Patrol -->
+        <item>Spiderman</item>
+        <item>Harry Potter</item>
+        <item>Peter Pan</item>
+        <item>Hulk</item>
+        <item>Campanilla</item>
+        <item>Shrek</item>
+        <item>Minnie Mouse</item>
+        <item>Ratatouille</item>
+        <item>Mary Poppins</item>
     </string-array>
 
 </resources>

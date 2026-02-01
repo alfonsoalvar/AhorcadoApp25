@@ -28,21 +28,13 @@ import androidx.compose.ui.unit.dp
 import antonio.femxa.appfinal.ui.theme.AhorcadoApp25Theme
 
 class CreditosActivity : ComponentActivity() {
-    private var mediaPlayer: MediaPlayer? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.soni)?.apply {
-            isLooping = false
-            setVolume(100f, 100f)
-        }
 
         setContent {
             AhorcadoApp25Theme {
                 CreditosScreen(
-                    onBackPressed = { finish() },
-                    onLongPress = { mediaPlayer?.start() }
+                    onBackPressed = { finish() }
                 )
             }
         }
@@ -50,13 +42,11 @@ class CreditosActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaPlayer?.release()
-        mediaPlayer = null
     }
 }
 
 @Composable
-fun CreditosScreen(onBackPressed: () -> Unit, onLongPress: () -> Unit) {
+fun CreditosScreen(onBackPressed: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -73,12 +63,7 @@ fun CreditosScreen(onBackPressed: () -> Unit, onLongPress: () -> Unit) {
             Text(
                 text = stringResource(id = R.string.creditos),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = { onLongPress() }
-                    )
-                }
+                style = MaterialTheme.typography.bodyLarge
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(onClick = onBackPressed) {
@@ -91,5 +76,5 @@ fun CreditosScreen(onBackPressed: () -> Unit, onLongPress: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun CreditosPreview() {
-    CreditosScreen(onBackPressed = {}, onLongPress = {})
+    CreditosScreen(onBackPressed = {})
 }

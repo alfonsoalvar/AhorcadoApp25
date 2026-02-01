@@ -9,8 +9,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import antonio.femxa.appfinal.ui.theme.AhorcadoApp25Theme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -39,6 +42,14 @@ class InicialActivity : ComponentActivity() {
             isLooping = true
             setVolume(100f, 100f)
         }
+
+        val versionName = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.PackageInfoFlags.of(0)).versionName
+        } else {
+            @Suppress("DEPRECATION")
+            packageManager.getPackageInfo(packageName, 0).versionName
+        }
+        Log.d("InicialActivity", "Version Name: $versionName")
 
         setContent {
             val uiState by viewModel.uiState.collectAsState()
@@ -66,7 +77,8 @@ class InicialActivity : ComponentActivity() {
                     musicaOn = uiState.musicaOn,
                     onJugarClicked = viewModel::onJugarClicked,
                     onCreditosClicked = viewModel::onCreditosClicked,
-                    onSonidoClicked = viewModel::onSonidoClicked
+                    onSonidoClicked = viewModel::onSonidoClicked,
+                    versionName = versionName
                 )
             }
         }
@@ -119,26 +131,41 @@ fun InicialScreen(
     musicaOn: Boolean,
     onJugarClicked: () -> Unit,
     onCreditosClicked: () -> Unit,
-    onSonidoClicked: () -> Unit
+    onSonidoClicked: () -> Unit,
+    versionName: String?
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Button(onClick = onJugarClicked) {
-                Text("A JUGAR")
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = onJugarClicked) {
+                    Text("A JUGAR")
+                }
+                Button(onClick = onCreditosClicked) {
+                    Text("CRÉDITOS")
+                }
+                Button(onClick = onSonidoClicked) {
+                    Text(if (musicaOn) "SONIDO OFF" else "SONIDO ON")
+                }
             }
-            Button(onClick = onCreditosClicked) {
-                Text("CRÉDITOS")
-            }
-            Button(onClick = onSonidoClicked) {
-                Text(if (musicaOn) "SONIDO OFF" else "SONIDO ON")
-            }
+
+            // Texto de la versión posicionado abajo a la derecha
+            Text(
+                text = "v$versionName",
+                modifier = Modifier
+                    .align(Alignment.BottomEnd) // Alineación a la esquina
+                    .padding(16.dp), // Margen respecto a los bordes
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f) // Color sutil
+            )
         }
     }
 }
@@ -147,6 +174,6 @@ fun InicialScreen(
 @Composable
 fun DefaultPreview() {
     AhorcadoApp25Theme {
-        InicialScreen(true, {}, {}, {})
+        InicialScreen(true, {}, {}, {}, "3.1")
     }
 }
